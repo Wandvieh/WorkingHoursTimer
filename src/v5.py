@@ -1,16 +1,19 @@
 import time
-import tkinter as tk
-from tkinter import font
-import win32gui
 import datetime
 import json
 import os
 import csv
+import tkinter as tk
+from tkinter import font
 from tkinter import simpledialog, messagebox
+import win32gui
+from filelock import FileLock
 
 CONFIG_FILE = "config.json"
 DEFAULT_TARGET = "Photoshop"
 CHECK_INTERVAL = 1000  # ms
+FILE = "timelog.csv"
+LOCK_PATH = "timelog.csv.lock"
 
 def get_active_window_title():
     return win32gui.GetWindowText(win32gui.GetForegroundWindow())
@@ -170,7 +173,6 @@ class TimeTrackerApp:
         self.root.after(CHECK_INTERVAL, self.update_timer)
 
     def save_time_to_csv(self):
-        # Prompt for a title if it's missing
         if not self.timer_title.strip():
             title = simpledialog.askstring("Title Required", "Enter a title for this session:")
             if not title:
@@ -178,9 +180,8 @@ class TimeTrackerApp:
                 return
             self.timer_title = title.strip()
             self.update_title_label()
-            save_config(self.target_window, self.timer_title)
+            save_config(self.timer_title, self.target_window)
 
-        # Calculate final time
         if self.tracking:
             elapsed = time.time() - self.start_time
             self.total_time += elapsed
@@ -190,45 +191,55 @@ class TimeTrackerApp:
 
         time_str = format_seconds(self.total_time)
         today_str = datetime.datetime.now().strftime("%d.%m.%Y")
-        file = "timelog.csv"
 
-        # Read existing data
-        rows = []
-        fieldnames = set(["Date"])
-        if os.path.exists(file):
-            with open(file, "r", newline="", encoding="utf-8") as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                for row in rows:
-                    fieldnames.update(row.keys())
+        rows = {}
+        fieldnames = set()
 
-        fieldnames.add(self.timer_title)
-        fieldnames = list(fieldnames)
+        # Safe write block
+        with FileLock(LOCK_PATH):
+            if os.path.exists(FILE):
+                with open(FILE, "r", newline="", encoding="utf-8") as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        date = row["Date"]
+                        rows[date] = row
+                        fieldnames.update(row.keys())
 
-        # Update or insert row
-        found = False
-        for row in rows:
-            if row["Date"] == today_str:
+            fieldnames.add("Date")
+            fieldnames.add(self.timer_title)
+            ordered_fields = ["Date"] + sorted(fn for fn in fieldnames if fn != "Date")
+
+            if today_str in rows:
+                row = rows[today_str]
+                prev_time = row.get(self.timer_title, "").strip()
+                if prev_time:
+                    try:
+                        h, m, s = map(int, prev_time.split(":"))
+                        old_td = datetime.timedelta(hours=h, minutes=m, seconds=s)
+                        new_td = datetime.timedelta(seconds=int(self.total_time))
+                        total_td = old_td + new_td
+                        row[self.timer_title] = str(total_td)
+                    except Exception:
+                        row[self.timer_title] = time_str
+                else:
+                    row[self.timer_title] = time_str
+            else:
+                row = {field: "" for field in ordered_fields}
+                row["Date"] = today_str
                 row[self.timer_title] = time_str
-                found = True
-                break
+                rows[today_str] = row
 
-        if not found:
-            new_row = {field: "" for field in fieldnames}
-            new_row["Date"] = today_str
-            new_row[self.timer_title] = time_str
-            rows.append(new_row)
+            sorted_rows = sorted(rows.values(), key=lambda r: datetime.datetime.strptime(r["Date"], "%d.%m.%Y"), reverse=True)
 
-        # Write back
-        with open(file, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            for row in rows:
-                writer.writerow(row)
+            with open(FILE, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=ordered_fields)
+                writer.writeheader()
+                for row in sorted_rows:
+                    writer.writerow(row)
 
-        messagebox.showinfo("Saved", f"Time saved to {file} under '{self.timer_title}' for {today_str}.")
-        self.total_time = 0  # Reset timer after saving
-        self.label.config(text="00:00:00")
+        messagebox.showinfo("Saved", f"Time saved to {FILE} under '{self.timer_title}' for {today_str}.")
+        self.total_time = 0
+        self.label.config(text="0:00:00")
 
 # === RUN ===
 if __name__ == "__main__":
