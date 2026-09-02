@@ -1,1 +1,14 @@
-{"target_window": "Fire"}
+{
+    "target_window": "test",
+    "timer_title": "Ankaufsverwaltung",
+    "sessions": [
+        {
+            "name": "Elster Atelier",
+            "programs": []
+        },
+        {
+            "name": "Ankaufsverwaltung",
+            "programs": []
+        }
+    ]
+}

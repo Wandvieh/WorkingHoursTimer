@@ -3,6 +3,11 @@ Easily document your working hours
 
 
 # Overview of changes
+- v7
+  - can now manage multiple sessions, each with their own programs
+  - saves are now made under the session name
+- v6
+  - can now add programs to the config and can start them with a button click
 - v5
   - added saving functionality: logs to timelog.csv using the date and title
   - resets the timer after saving
