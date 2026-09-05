@@ -1,12 +1,10 @@
 {
     "target_window": "",
-    "timer_title": "test",
+    "timer_title": "sad",
     "sessions": [
         {
-            "name": "Testasd",
-            "programs": [
-                "D:\\Programme\\LibreOffice\\program\\simpress.exe"
-            ]
+            "name": "sad",
+            "programs": []
         }
     ]
 }

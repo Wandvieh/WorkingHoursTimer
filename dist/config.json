@@ -1,5 +1,5 @@
 {
-    "target_window": "test",
+    "target_window": "",
     "timer_title": "Ankaufsverwaltung",
     "sessions": [
         {
@@ -8,7 +8,12 @@
         },
         {
             "name": "Ankaufsverwaltung",
-            "programs": []
+            "programs": [
+                "D:\\Freizeit\\Github\\WorkingHoursTimer\\dist\\v7.exe",
+                "D:\\Freizeit\\Github\\WorkingHoursTimer\\dist\\v5.exe",
+                "D:\\Programme\\LibreOffice\\program\\simpress.exe",
+                "D:\\Programme\\LibreOffice\\program\\swriter.exe"
+            ]
         }
     ]
 }
