@@ -1,16 +1,15 @@
 {
-    "target_window": "",
-    "timer_title": "lasfff",
+    "target_window": "pause",
     "sessions": [
         {
-            "name": "sad",
-            "programs": []
+            "name": "sadd",
+            "programs": [
+                "D:\\Programme\\LibreOffice\\program\\sweb.exe"
+            ]
         },
         {
-            "name": "lasfff",
-            "programs": [
-                "D:\\Programme\\LibreOffice\\program\\swriter.exe"
-            ]
+            "name": "vss",
+            "programs": []
         }
     ]
 }

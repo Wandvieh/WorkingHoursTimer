@@ -4,10 +4,10 @@ Easily document your working hours
 
 ## To Do
 
-
-- Nachfragen ob Zeit speichern wenn es in die Overview geht; in overview the timer does not continue / is totally killed off
-- Need a button "Edit programs" when on a timer screen
 - Better GUI design
+  - ttk.Label doesn't have all options from tk.Labels yet (text, background)
+  - make Canva designs, then implement
+  - and v1.0 is finished!
 - Don't lose the text in the text field when clicking "Track all the time"
 
 # Overview of changes
