@@ -60,346 +60,6 @@ def save_config(
             f,
             indent=4,
             ensure_ascii=False)
-# SESSION MANAGER
-# class SessionManager:
-#     def __init__(
-#         self,
-#         parent,
-#         sessions,
-#         on_change):
-#         self.parent = parent
-#         self.sessions = sessions
-#         self.on_change = on_change
-#         self.window = tk.Toplevel(parent)
-#         self.window.title(
-#             "Manage Sessions")
-#         self.window.geometry(
-#             "650x450")
-#         self.window.resizable(
-#             False,
-#             False)
-#         self.create_ui()
-#     # UI
-#     def create_ui(self):
-#         tk.Label(
-#             self.window,
-#             text="Sessions",
-#             font=("Helvetica", 16, "bold")).pack(
-#             pady=(15, 5))
-#         tk.Label(
-#             self.window,
-#             text=(
-#                 "Each session contains the programs "
-#                 "that should be started.")).pack(
-#             pady=(0, 15))
-#         # List
-#         frame = tk.Frame(
-#             self.window)
-#         frame.pack(
-#             fill="both",
-#             expand=True,
-#             padx=20)
-#         scrollbar = tk.Scrollbar(
-#             frame)
-#         scrollbar.pack(
-#             side="right",
-#             fill="y")
-#         self.listbox = tk.Listbox(
-#             frame,
-#             height=15,
-#             width=75,
-#             yscrollcommand=scrollbar.set)
-#         self.listbox.pack(
-#             side="left",
-#             fill="both",
-#             expand=True)
-#         scrollbar.config(
-#             command=self.listbox.yview)
-#         self.refresh_list()
-#         # Buttons
-#         button_frame = tk.Frame(
-#             self.window)
-#         button_frame.pack(
-#             pady=15)
-#         tk.Button(
-#             button_frame,
-#             text="New Session…",
-#             width=16,
-#             command=self.new_session).grid(
-#             row=0,
-#             column=0,
-#             padx=5)
-#         tk.Button(
-#             button_frame,
-#             text="Edit Session…",
-#             width=16,
-#             command=self.edit_session).grid(
-#             row=0,
-#             column=1,
-#             padx=5)
-#         tk.Button(
-#             button_frame,
-#             text="Delete",
-#             width=16,
-#             command=self.delete_session).grid(
-#             row=0,
-#             column=2,
-#             padx=5)
-#         tk.Button(
-#             button_frame,
-#             text="Close",
-#             width=16,
-#             command=self.window.destroy).grid(
-#             row=0,
-#             column=3,
-#             padx=5)
-#     # Refresh
-#     def refresh_list(self):
-#         self.listbox.delete(
-#             0,
-#             tk.END)
-#         for session in self.sessions:
-#             name = session.get(
-#                 "name",
-#                 "Unnamed")
-#             programs = session.get(
-#                 "programs",
-#                 [])
-#             program_names = []
-#             for path in programs:
-#                 program_names.append(
-#                     os.path.basename(path))
-#             if program_names:
-#                 text = (
-#                     f"{name}  —  "
-#                     + ", ".join(program_names))
-#             else:
-#                 text = (
-#                     f"{name}  —  "
-#                     "(no programs)")
-#             self.listbox.insert(
-#                 tk.END,
-#                 text)
-#     # New Session
-#     def new_session(self):
-#         name = simpledialog.askstring(
-#             "New Session",
-#             "Name of the session:",
-#             parent=self.window)
-#         if not name:
-#             return
-#         name = name.strip()
-#         if not name:
-#             return
-#         # Check duplicate names
-#         for session in self.sessions:
-#             if session.get(
-#                 "name",
-#                 "").lower() == name.lower():
-#                 messagebox.showwarning(
-#                     "Already Exists",
-#                     "A session with this name "
-#                     "already exists.",
-#                     parent=self.window)
-#                 return
-#         session = {
-#             "name": name,
-#             "programs": []
-#         }
-#         self.sessions.append(
-#             session)
-#         self.refresh_list()
-#         self.on_change()
-#     # Edit Session
-#     def edit_session(self):
-#         selection = self.listbox.curselection()
-#         if not selection:
-#             messagebox.showwarning(
-#                 "No Selection",
-#                 "Please select a session first.",
-#                 parent=self.window)
-#             return
-#         index = selection[0]
-#         session = self.sessions[index]
-#         self.open_session_editor(
-#             session)
-#     # Session Editor
-#     def open_session_editor(
-#         self,
-#         session):
-#         dialog = tk.Toplevel(
-#             self.window)
-#         dialog.title(
-#             "Edit Session")
-#         dialog.geometry(
-#             "650x450")
-#         dialog.resizable(
-#             False,
-#             False)
-#         # Name
-#         tk.Label(
-#             dialog,
-#             text="Session Name:").pack(
-#             pady=(15, 5))
-#         name_var = tk.StringVar(
-#             value=session.get(
-#                 "name",
-#                 ""))
-#         name_entry = tk.Entry(
-#             dialog,
-#             textvariable=name_var,
-#             width=50)
-#         name_entry.pack(
-#             pady=(0, 15))
-#         # Programs
-#         tk.Label(
-#             dialog,
-#             text="Programs:").pack()
-#         frame = tk.Frame(
-#             dialog)
-#         frame.pack(
-#             fill="both",
-#             expand=True,
-#             padx=20)
-#         scrollbar = tk.Scrollbar(
-#             frame)
-#         scrollbar.pack(
-#             side="right",
-#             fill="y")
-#         program_list = tk.Listbox(
-#             frame,
-#             height=12,
-#             width=75,
-#             yscrollcommand=scrollbar.set)
-#         program_list.pack(
-#             side="left",
-#             fill="both",
-#             expand=True)
-#         scrollbar.config(
-#             command=program_list.yview)
-#         # Load existing programs
-#         for program in session.get(
-#             "programs",
-#             []):
-#             program_list.insert(
-#                 tk.END,
-#                 program)
-#         # Program Buttons
-#         program_buttons = tk.Frame(dialog)
-#         program_buttons.pack(pady=10)
-#         def add_program():
-#             path = filedialog.askopenfilename(
-#                 parent=dialog,
-#                 title="Select Program",
-#                 filetypes=[
-#                     ("Windows Programs",
-#                         "*.exe"),
-#                     ("All Files",
-#                         "*.*")
-#                 ])
-#             if not path: return
-#             path = os.path.normpath(
-#                 path)
-#             existing = list(
-#                 program_list.get(
-#                     0,
-#                     tk.END))
-#             if path in existing:
-#                 messagebox.showinfo(
-#                     "Already Added",
-#                     "This program is already "
-#                     "in the session.",
-#                     parent=dialog)
-#                 return
-#             program_list.insert(
-#                 tk.END,
-#                 path)
-#         def remove_program():
-#             selection = (
-#                 program_list.curselection())
-#             if not selection:
-#                 return
-#             program_list.delete(
-#                 selection[0])
-#         tk.Button(
-#             program_buttons,
-#             text="Add Program…",
-#             width=16,
-#             command=add_program).grid(
-#             row=0,
-#             column=0,
-#             padx=5)
-#         tk.Button(
-#             program_buttons,
-#             text="Remove",
-#             width=16,
-#             command=remove_program).grid(
-#             row=0,
-#             column=1,
-#             padx=5)
-#         # Save / Cancel
-#         bottom_frame = tk.Frame(
-#             dialog)
-#         bottom_frame.pack(
-#             pady=(5, 15))
-#         def save():
-#             new_name = name_var.get().strip()
-#             if not new_name:
-#                 messagebox.showwarning(
-#                     "Name Required",
-#                     "Please enter a session name.",
-#                     parent=dialog)
-#                 return
-#             programs = list(
-#                 program_list.get(
-#                     0,
-#                     tk.END))
-#             session["name"] = new_name
-#             session["programs"] = programs
-#             self.refresh_list()
-#             self.on_change()
-#             dialog.destroy()
-#         tk.Button(
-#             bottom_frame,
-#             text="Save",
-#             width=16,
-#             command=save).grid(
-#             row=0,
-#             column=0,
-#             padx=5)
-#         tk.Button(
-#             bottom_frame,
-#             text="Cancel",
-#             width=16,
-#             command=dialog.destroy).grid(
-#             row=0,
-#             column=1,
-#             padx=5)
-#         name_entry.focus()
-#     # Delete
-#     def delete_session(self):
-#         selection = (
-#             self.listbox.curselection())
-#         if not selection:
-#             messagebox.showwarning(
-#                 "No Selection",
-#                 "Please select a session first.",
-#                 parent=self.window)
-#             return
-#         index = selection[0]
-#         session = self.sessions[index]
-#         name = session.get(
-#             "name",
-#             "Unnamed")
-#         answer = messagebox.askyesno(
-#             "Delete Session",
-#             f"Delete session '{name}'?",
-#             parent=self.window)
-#         if not answer:
-#             return
-#         del self.sessions[index]
-#         self.refresh_list()
-#         self.on_change()
 # MAIN APPLICATION
 class TimeTrackerApp:
     def __init__(self, root):
@@ -589,7 +249,7 @@ class TimeTrackerApp:
             self.overview_frame,
             text="New Session",
             width=16,
-            # command=self.new_session
+            command=self.new_session
             ).pack(
             # row=0,
             # column=0,
@@ -623,8 +283,7 @@ class TimeTrackerApp:
             text="▶ " + name,
             font=("Helvetica", 12, "bold"),
             width=25,
-            command=lambda i=index:
-                self.select_session(i))
+            command=lambda i=index: self.select_session(i))
         button.pack(
             side="left",
             padx=10,
@@ -639,7 +298,7 @@ class TimeTrackerApp:
             frame,
             text="Edit",
             width=16,
-            # command=self.edit_session
+            command=lambda i=index: self.edit_session(i)
             ).pack(
             # row=0,
             # column=1,
@@ -648,15 +307,13 @@ class TimeTrackerApp:
             frame,
             text="Delete",
             width=16,
-            # command=self.delete_session
+            command=lambda i=index: self.delete_session(i)
             ).pack(
             # row=0,
             # column=2,
             padx=5)
-    # SELECT SESSION
-    def select_session(
-        self,
-        index):
+    # SESSIONS
+    def select_session(self, index):
         # If timer is currently running,
         # stop the current tracking interval
         # before switching session.
@@ -685,7 +342,6 @@ class TimeTrackerApp:
             self.sessions)
         self.update_all_labels()
         self.hide_overview()
-    # CURRENT SESSION
     def get_current_session(self):
         if self.current_session_index is None:
             return None
@@ -696,13 +352,189 @@ class TimeTrackerApp:
         return self.sessions[
             self.current_session_index
         ]
-    # SESSION MANAGER
-    # def open_session_manager(self):
-    #     SessionManager(
-    #         self.root,
-    #         self.sessions,
-    #         self.sessions_changed)
-    def sessions_changed(self):
+    def delete_session(self, index):
+        session = self.sessions[index]
+        name = session.get(
+            "name",
+            "Unnamed")
+        answer = messagebox.askyesno(
+            "Delete Session",
+            f"Delete session '{name}'?",
+            parent=self.root)
+        if not answer:
+            return
+        del self.sessions[index]
+        self.save_sessions()
+    def edit_session(self, index):
+        session = self.sessions[index]
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Edit Session")
+        dialog.geometry("650x450")
+        dialog.resizable(False, False)
+        # Name
+        tk.Label(dialog, text="Session Name:").pack(
+            pady=(15, 5))
+        name_var = tk.StringVar(
+            value=session.get("name", ""))
+        name_entry = tk.Entry(
+            dialog,
+            textvariable=name_var,
+            width=50)
+        name_entry.pack(
+            pady=(0, 15))
+        # Programs
+        tk.Label(
+            dialog,
+            text="Programs:").pack()
+        frame = tk.Frame(
+            dialog)
+        frame.pack(
+            fill="both",
+            expand=True,
+            padx=20)
+        scrollbar = tk.Scrollbar(
+            frame)
+        scrollbar.pack(
+            side="right",
+            fill="y")
+        program_list = tk.Listbox(
+            frame,
+            height=12,
+            width=75,
+            yscrollcommand=scrollbar.set)
+        program_list.pack(
+            side="left",
+            fill="both",
+            expand=True)
+        scrollbar.config(
+            command=program_list.yview)
+        # Load existing programs
+        for program in session.get(
+            "programs",
+            []):
+            program_list.insert(
+                tk.END,
+                program)
+        # Program Buttons
+        program_buttons = tk.Frame(dialog)
+        program_buttons.pack(pady=10)
+        def add_program():
+            path = filedialog.askopenfilename(
+                parent=dialog,
+                title="Select Program",
+                filetypes=[
+                    ("Windows Programs",
+                        "*.exe"),
+                    ("All Files",
+                        "*.*")
+                ])
+            if not path: return
+            path = os.path.normpath(
+                path)
+            existing = list(
+                program_list.get(
+                    0,
+                    tk.END))
+            if path in existing:
+                messagebox.showinfo(
+                    "Already Added",
+                    "This program is already "
+                    "in the session.",
+                    parent=dialog)
+                return
+            program_list.insert(
+                tk.END,
+                path)
+        def remove_program():
+            selection = (
+                program_list.curselection())
+            if not selection:
+                return
+            program_list.delete(
+                selection[0])
+        tk.Button(
+            program_buttons,
+            text="Add Program…",
+            width=16,
+            command=add_program).grid(
+            row=0,
+            column=0,
+            padx=5)
+        tk.Button(
+            program_buttons,
+            text="Remove",
+            width=16,
+            command=remove_program).grid(
+            row=0,
+            column=1,
+            padx=5)
+        # Save / Cancel
+        bottom_frame = tk.Frame(
+            dialog)
+        bottom_frame.pack(
+            pady=(5, 15))
+        def save():
+            new_name = name_var.get().strip()
+            if not new_name:
+                messagebox.showwarning(
+                    "Name Required",
+                    "Please enter a session name.",
+                    parent=dialog)
+                return
+            programs = list(
+                program_list.get(
+                    0,
+                    tk.END))
+            session["name"] = new_name
+            session["programs"] = programs
+            self.save_sessions()
+            dialog.destroy()
+        tk.Button(
+            bottom_frame,
+            text="Save",
+            width=16,
+            command=save).grid(
+            row=0,
+            column=0,
+            padx=5)
+        tk.Button(
+            bottom_frame,
+            text="Cancel",
+            width=16,
+            command=dialog.destroy).grid(
+            row=0,
+            column=1,
+            padx=5)
+        name_entry.focus()
+    def new_session(self):
+        name = simpledialog.askstring(
+            "New Session",
+            "Name of the session:",
+            parent=self.root)
+        if not name:
+            return
+        name = name.strip()
+        if not name:
+            return
+        # Check duplicate names
+        for session in self.sessions:
+            if session.get(
+                "name",
+                "").lower() == name.lower():
+                messagebox.showwarning(
+                    "Already Exists",
+                    "A session with this name already exists.",
+                    parent=self.root)
+                return
+        session = {
+            "name": name,
+            "programs": []
+        }
+        self.sessions.append(
+            session)
+        # self.refresh_list()
+        self.save_sessions()
+    def save_sessions(self):
         save_config(
             self.target_window,
             self.timer_title,

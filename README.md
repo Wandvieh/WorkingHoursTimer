@@ -4,13 +4,15 @@ Easily document your working hours
 
 ## To Do
 
-- Change the Layout of the Program: Maybe lose the "Manage Sessions" window and just use the overview
-  - Buttons "New Session", "Edit" and "Delete" don't yet work
-  - Need a button "Edit programs" when on a timer screen
+
+- Nachfragen ob Zeit speichern wenn es in die Overview geht; in overview the timer does not continue / is totally killed off
+- Need a button "Edit programs" when on a timer screen
+- Better GUI design
 - Don't lose the text in the text field when clicking "Track all the time"
 
 # Overview of changes
 - v8
+  - Change the Layout of the Program: lost the "Manage Sessions" window and just uses the overview
   - Timer is automatically paused when starting a session
   - Manage saving the sessions so no time will be overwritten (is added instead)
   - Program asks whether time should be saved before closing the program

@@ -1,10 +1,16 @@
 {
     "target_window": "",
-    "timer_title": "sad",
+    "timer_title": "lasfff",
     "sessions": [
         {
             "name": "sad",
             "programs": []
+        },
+        {
+            "name": "lasfff",
+            "programs": [
+                "D:\\Programme\\LibreOffice\\program\\swriter.exe"
+            ]
         }
     ]
 }
