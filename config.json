@@ -1,14 +1,8 @@
 {
-    "target_window": "pause",
+    "target_window": "Paused",
     "sessions": [
         {
-            "name": "sadd",
-            "programs": [
-                "D:\\Programme\\LibreOffice\\program\\sweb.exe"
-            ]
-        },
-        {
-            "name": "vss",
+            "name": "Elster Atelier",
             "programs": []
         }
     ]

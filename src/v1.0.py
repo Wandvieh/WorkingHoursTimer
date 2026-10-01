@@ -91,12 +91,60 @@ class TimeTrackerApp:
         self.main_frame.pack(
             fill="both",
             expand=True)
+        # Session name
+        self.session_label = ttk.Label(
+            self.main_frame,
+            text="No Session")
+        self.session_label.pack(pady=(5, 0))
+        self.session_label.configure(style="Heading.TLabel")
+        # Timer
+        self.label = ttk.Label(
+            self.main_frame,
+            text="00:00:00",
+            font=self.timer_font,
+            )
+        self.label.configure(style="Inactive.TLabel")
+        self.label.pack(padx=20, pady=(10, 10))
+        # Pausebutton
+        if self.paused: buttonText = "▶ Start Timer"
+        else: buttonText = "Pause"
+        self.pause_button = ttk.Button(
+            self.main_frame,
+            text=buttonText,
+            command=self.toggle_pause)
+        self.pause_button.pack(pady=(5, 0))
+        # Tracking
+        self.tracking_frame = ttk.Frame(self.main_frame)
+        self.tracking_frame.pack()
+        self.target_label = ttk.Label(
+            self.tracking_frame,
+            text="")
+        self.target_label.pack(pady=(0, 10), side="left")
+        self.settings_button = ttk.Button(
+            self.tracking_frame,
+            text="✎", width=3,
+            command=self.change_target_dialog)
+        self.settings_button.pack(
+            padx=5, pady=5,
+            side="right",)
+        # Buttons
+        self.start_programs_button = ttk.Button(
+            self.main_frame,
+            text="Start Programs",
+            command=self.start_workspace)
+        self.start_programs_button.pack(
+            padx=5,
+            pady=5)
+        self.save_button = ttk.Button(
+            self.main_frame,
+            text="Save Time",
+            command=self.save_time_to_csv)
+        self.save_button.pack(
+            padx=5,
+            pady=5)
         # OVERVIEW BUTTON
         self.session_bar = ttk.Frame(
-            self.main_frame,
-            # bd=1,
-            border="1",
-            relief="solid")
+            self.main_frame)
         self.session_bar.pack(
             fill="x",
             padx=10,
@@ -107,77 +155,14 @@ class TimeTrackerApp:
             command=self.toggle_overview)
         self.overview_button.pack(
             padx=8,
-            pady=6)
-        # Session name
-        self.session_label = ttk.Label(
-            self.main_frame,
-            text="No Session",
-            font=("Helvetica", 14, "bold"))
-        self.session_label.pack(pady=(5, 0))
-        # Timer
-        self.label = ttk.Label(
-            self.main_frame,
-            text="00:00:00",
-            font=self.timer_font,
-            # fg="gray"
-            )
-        self.label.pack(padx=20, pady=(10, 10))
-        # Tracking
-        self.target_label = ttk.Label(
-            self.main_frame,
-            text="",
-            font=("Helvetica", 10))
-        self.target_label.pack(pady=(0, 10))
-        # Buttons
-        button_frame = ttk.Frame(self.main_frame)
-        button_frame.pack()
-        self.settings_button = ttk.Button(
-            button_frame,
-            text="Tracking...",
-            command=self.change_target_dialog)
-        self.settings_button.grid(
-            row=0,
-            column=0,
-            padx=5,
-            pady=5)
-        self.start_programs_button = ttk.Button(
-            button_frame,
-            text="Start Programs",
-            command=self.start_workspace)
-        self.start_programs_button.grid(
-            row=0,
-            column=1,
-            padx=5,
-            pady=5)
+            pady=6, side="left")
         self.manage_programs = ttk.Button(
-            button_frame,
+            self.session_bar,
             text="Edit Session",
             command=self.edit_current_session)
-        self.manage_programs.grid(
-            row=0,
-            column=2,
+        self.manage_programs.pack(
             padx=5,
-            pady=5)
-        if self.paused: buttonText = "Start Timer"
-        else: buttonText = "Pause"
-        self.pause_button = ttk.Button(
-            button_frame,
-            text=buttonText,
-            command=self.toggle_pause)
-        self.pause_button.grid(
-            row=1,
-            column=0,
-            padx=5,
-            pady=5)
-        self.save_button = ttk.Button(
-            button_frame,
-            text="Save",
-            command=self.save_time_to_csv)
-        self.save_button.grid(
-            row=1,
-            column=1,
-            padx=5,
-            pady=5)
+            pady=5, side="right")
     # OVERVIEW
     def toggle_overview(self):
         if self.overview_frame.winfo_ismapped():
@@ -222,49 +207,37 @@ class TimeTrackerApp:
         for widget in self.overview_frame.winfo_children():
             widget.destroy()
         # Header
+        heading = ttk.Label(
+            self.overview_frame,
+            text="Track your working hours!")
+        heading.configure(style="Heading.TLabel")
+        heading.pack(pady=(10, 15))
         ttk.Label(
             self.overview_frame,
-            text="Sessions",
-            font=("Helvetica", 16, "bold")).pack(pady=(10, 15))
+            text="Choose a session...").pack(pady=(10, 15))
         # Sessions
         if not self.sessions:
             ttk.Label(
                 self.overview_frame,
-                text=(
-                    "No sessions yet.\n\n"
+                text=("No sessions yet.\n\n"
                     "Use 'Manage Sessions…' "
-                    "to create one."),
-                font=("Helvetica", 11)).pack(pady=30)
+                    "to create one.")).pack(pady=30)
         else:
             for index, session in enumerate(self.sessions):
                 self.create_session_button(index, session)
         ttk.Button(
             self.overview_frame,
-            text="New Session",
+            text="＋ New Session",
             width=16,
             command=self.new_session
             ).pack(
-            # row=0,
-            # column=0,
-            padx=5)
+            padx=10, pady=10)
     def create_session_button(self, index, session):
         name = session.get(
             "name",
             "Unnamed")
-        programs = session.get(
-            "programs",
-            [])
-        program_names = []
-        for program in programs:
-            program_names.append(os.path.basename(program))
-        if program_names:
-            program_text = ", ".join(program_names)
-        else:
-            program_text = "No programs configured"
         frame = ttk.Frame(
-            self.overview_frame,
-            border=1,
-            relief="solid")
+            self.overview_frame)
         frame.pack(
             fill="x",
             padx=10,
@@ -272,33 +245,25 @@ class TimeTrackerApp:
         button = ttk.Button(
             frame,
             text="▶ " + name,
-            # font=("Helvetica", 12, "bold"),
-            width=25,
             command=lambda i=index: self.select_session(i))
+        button.configure(style="Session.TButton")
         button.pack(
             side="left",
-            padx=10,
-            pady=10)
-        ttk.Label(
-            frame,
-            text=program_text,
-            anchor="w").pack(
-            side="left",
             padx=10)
-        ttk.Button(
+        delete = ttk.Button(
             frame,
-            text="Edit",
-            width=16,
-            command=lambda i=index: self.edit_session(i)
-            ).pack(
-            padx=5)
-        ttk.Button(
-            frame,
-            text="Delete",
-            width=16,
+            text="❌",
             command=lambda i=index: self.delete_session(i)
-            ).pack(
-            padx=5)
+            )
+        delete.configure(style="Delete.TButton")
+        delete.pack(side="right")
+        edit = ttk.Button(
+            frame,
+            text="⚙",
+            command=lambda i=index: self.edit_session(i)
+            )
+        edit.configure(style="Edit.TButton")
+        edit.pack(side="right")
     # SESSIONS
     def select_session(self, index):
         # If timer is currently running,
@@ -313,10 +278,8 @@ class TimeTrackerApp:
         self.total_time = 0
         self.start_time = 0
         self.paused = True
-        self.pause_button.config(text="Start Timer")
-        # self.label.config(
-        #     text="00:00:00",
-        #     fg="gray")
+        self.pause_button.config(text="▶ Start Timer")
+        self.label.configure(style="Inactive.TLabel")
         session = self.get_current_session()
         save_config(
             self.target_window,
@@ -572,9 +535,7 @@ class TimeTrackerApp:
                     "(Always On)"))
         else:
             self.target_label.config(
-                text=(
-                    f"Tracking: "
-                    f"{self.target_window}"))
+                text=(f"Tracking: {self.target_window}"))
     # SETTINGS
     def change_target_dialog(self):
         dialog = tk.Toplevel(self.root)
@@ -630,8 +591,9 @@ class TimeTrackerApp:
             if self.should_be_tracking():
                 self.start_time = time.time()
                 self.tracking = True
-                # self.label.config(fg="black")
+                self.label.configure(style="Active.TLabel")
                 self.root.title("Tracking…")
+                self.label.configure(style="Active.TLabel")
             self.pause_button.config(text="Pause")
         else:
             self.pause()
@@ -641,31 +603,31 @@ class TimeTrackerApp:
                 self.total_time += (time.time() - self.start_time)
                 self.tracking = False
             self.paused = True
-            # self.label.config(fg="gray")
+            self.label.configure(style="Inactive.TLabel")
             self.root.title("Paused (Manual)")
             self.pause_button.config(text="Resume")
+            self.label.configure(style="Inactive.TLabel")
     # TRACKING CONDITION
     def should_be_tracking(self):
         if self.paused:
             return False
         if self.target_window.strip() == "":
             return True
-        return (self.target_window.lower()
-            in get_active_window_title().lower())
+        return (self.target_window.lower() in get_active_window_title().lower())
     # TIMER UPDATE
     def update_timer(self):
         if self.should_be_tracking():
             if not self.tracking:
                 self.start_time = time.time()
                 self.tracking = True
-                # self.label.config(fg="black")
+                self.label.configure(style="Active.TLabel")
                 self.root.title("Tracking…")
         else:
             if self.tracking:
                 self.total_time += (time.time()
                     - self.start_time)
                 self.tracking = False
-                # self.label.config(fg="gray")
+                self.label.configure(style="Inactive.TLabel")
                 self.root.title("Paused")
         total = self.total_time
         if self.tracking:
@@ -697,7 +659,7 @@ class TimeTrackerApp:
             elapsed = time.time() - self.start_time
             self.total_time += elapsed
             self.tracking = False
-            # self.label.config(fg="gray")
+            self.label.configure(style="Inactive.TLabel")
             self.root.title("Paused")
         if self.total_time <= 0:
             messagebox.showwarning(
@@ -842,8 +804,22 @@ class TimeTrackerApp:
             return
         # Keine Zeit vorhanden
         self.root.destroy()
+
 # RUN
 if __name__ == "__main__":
     root = tk.Tk()
+    defaultbg = root.cget('bg')
+    print(root.winfo_rgb(defaultbg))
+    STYLE = ttk.Style()
+    STYLE.configure("Inactive.TLabel", foreground="gray")
+    STYLE.configure("Active.TLabel", foreground="black")
+    STYLE.configure("Heading.TLabel", foreground="black", font=("Arial", 16, "bold"))
+    STYLE.configure("TLabel", foreground="black", font=("Arial", 12))
+    STYLE.configure("TButton", foreground="black", font=("Arial", 12))
+    # STYLE.configure("TButton", foreground="black", font=("Arial", 12))
+    STYLE.configure("Session.TButton", foreground="black", font=("Arial", 12), bordercolor="red", justify="right", padding=(20, 5))
+    STYLE.configure("Edit.TButton", foreground="black", font=("Arial", 12), width=3, padding=3)
+    STYLE.configure("Delete.TButton", foreground="red", font=("Arial", 12), width=3, padding=3)
     app = TimeTrackerApp(root)
     root.mainloop()
+    #"#61680e"
