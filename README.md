@@ -2,16 +2,10 @@
 Easily document your working hours
 
 
-## To Do
-
-- Better GUI design
-  - make Canva designs, then implement
-  - and v1.0 is finished!
-- Don't lose the text in the text field when clicking "Track all the time"
-
 # Overview of changes
 - v1
   - Sets correct text color on the timer
+  - adjusted the design
 - v8
   - Change the Layout of the Program: lost the "Manage Sessions" window and just uses the overview
   - Timer is automatically paused when starting a session

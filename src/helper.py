@@ -36,6 +36,6 @@ def stylename_elements_options(stylename):
               'widget_elements_options({0}) is not a regonised stylename.'
               .format(stylename))
 
-stylename_elements_options('TButton')
+stylename_elements_options('TEntry')
 # stylename_elements_options('TLabel')
 # stylename_elements_options('TFrame')

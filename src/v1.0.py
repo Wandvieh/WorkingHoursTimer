@@ -318,7 +318,7 @@ class TimeTrackerApp:
         # Name
         ttk.Label(dialog, text="Session Name:").pack(pady=(15, 5))
         name_var = tk.StringVar(value=session.get("name", ""))
-        name_entry = tk.Entry(
+        name_entry = ttk.Entry(
             dialog,
             textvariable=name_var,
             width=50)
@@ -495,9 +495,8 @@ class TimeTrackerApp:
         if not programs:
             messagebox.showinfo(
                 "No Programs",
-                (f"The session '{session.get('name', '')}' "
-                    "does not have any programs configured.\n\n"
-                    "Open 'Manage Sessions…' and add some."))
+                (f"This session does not have any programs configured.\n\n"
+                "Open 'Edit Session' to add some."))
             return
         failed_programs = []
         for program in programs:
@@ -809,17 +808,16 @@ class TimeTrackerApp:
 if __name__ == "__main__":
     root = tk.Tk()
     defaultbg = root.cget('bg')
-    print(root.winfo_rgb(defaultbg))
     STYLE = ttk.Style()
     STYLE.configure("Inactive.TLabel", foreground="gray")
     STYLE.configure("Active.TLabel", foreground="black")
     STYLE.configure("Heading.TLabel", foreground="black", font=("Arial", 16, "bold"))
     STYLE.configure("TLabel", foreground="black", font=("Arial", 12))
     STYLE.configure("TButton", foreground="black", font=("Arial", 12))
+    STYLE.configure("TEntry", textarea=("Arial", 12))
     # STYLE.configure("TButton", foreground="black", font=("Arial", 12))
-    STYLE.configure("Session.TButton", foreground="black", font=("Arial", 12), bordercolor="red", justify="right", padding=(20, 5))
+    STYLE.configure("Session.TButton", foreground="black", font=("Arial", 12), bordercolor="red", justify="right", padding=(20,5))
     STYLE.configure("Edit.TButton", foreground="black", font=("Arial", 12), width=3, padding=3)
     STYLE.configure("Delete.TButton", foreground="red", font=("Arial", 12), width=3, padding=3)
     app = TimeTrackerApp(root)
     root.mainloop()
-    #"#61680e"
