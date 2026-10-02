@@ -2,7 +2,11 @@
     "target_window": "",
     "sessions": [
         {
-            "name": "Elster Atelier",
+            "name": "Friday's Client",
+            "programs": []
+        },
+        {
+            "name": "Personal Work",
             "programs": []
         }
     ]

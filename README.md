@@ -1,5 +1,9 @@
 # WorkingHoursTimer
-Easily document your working hours
+Easily document your working hours!
+
+![Overview](./assets/screenshot1.jpg "Overview")
+![Timer View](./assets/screenshot2.jpg "Timer View")
+![Editing a Session](./assets/screenshot3.jpg "Editing a Session")
 
 
 # Overview of changes
