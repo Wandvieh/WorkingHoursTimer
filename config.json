@@ -2,12 +2,18 @@
     "target_window": "",
     "sessions": [
         {
-            "name": "Friday's Client",
-            "programs": []
+            "name": "Test1",
+            "programs": [],
+            "last_used": "25.11.2026",
+            "total_time": "0:00:41",
+            "target_window": ""
         },
         {
-            "name": "Personal Work",
-            "programs": []
+            "name": "Photoshop",
+            "programs": [],
+            "last_used": "25.11.2026",
+            "total_time": "0:00:13",
+            "target_window": ""
         }
     ]
 }

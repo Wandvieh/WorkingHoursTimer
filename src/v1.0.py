@@ -10,6 +10,7 @@ from tkinter import font, filedialog
 from tkinter import simpledialog, messagebox
 import win32gui
 from filelock import FileLock
+import pandas as pd
 # CONFIGURATION
 CONFIG_FILE = "config.json"
 DEFAULT_TARGET = "Photoshop"
@@ -57,6 +58,22 @@ def save_config(
             f,
             indent=4,
             ensure_ascii=False)
+def get_total_time(session_name):
+    total_time = datetime.timedelta(seconds=0)
+    with open(FILE) as f:
+        reader = csv.reader(f)
+        timers = next(reader)
+        id = timers.index(session_name)
+        for times in reader:
+            # times = next(reader)
+            new_time_str = times[id]
+            if new_time_str != "" and new_time_str != None:
+                hours, minutes, seconds = map(int, new_time_str.split(":"))
+                new_time = datetime.timedelta(hours=hours, minutes=minutes, seconds=seconds)
+                total_time = total_time + new_time
+    return total_time
+    
+
 # MAIN APPLICATION
 class TimeTrackerApp:
     def __init__(self, root):
@@ -236,34 +253,49 @@ class TimeTrackerApp:
         name = session.get(
             "name",
             "Unnamed")
-        frame = ttk.Frame(
-            self.overview_frame)
-        frame.pack(
-            fill="x",
-            padx=10,
-            pady=5)
+        last_used = session.get(
+            "last_used",
+            "")
+        total_time = session.get(
+            "total_time",
+            "")
+        frame = ttk.Frame(self.overview_frame)
+        frame.pack(fill="x", padx=10, pady=5)
+        upper_frame = ttk.Frame(frame)
+        upper_frame.grid(row=0)
+        lower_frame = ttk.Frame(frame)
+        lower_frame.grid(row=1)
+        # Timer Button
         button = ttk.Button(
-            frame,
+            upper_frame,
             text="▶ " + name,
             command=lambda i=index: self.select_session(i))
         button.configure(style="Session.TButton")
-        button.pack(
-            side="left",
-            padx=10)
+        button.pack(side="left", padx=10)
+        # Delete
         delete = ttk.Button(
-            frame,
+            upper_frame,
             text="❌",
             command=lambda i=index: self.delete_session(i)
             )
         delete.configure(style="Delete.TButton")
         delete.pack(side="right")
+        # Edit
         edit = ttk.Button(
-            frame,
+            upper_frame,
             text="⚙",
             command=lambda i=index: self.edit_session(i)
             )
         edit.configure(style="Edit.TButton")
         edit.pack(side="right")
+        # Date
+        if last_used != "":
+            ttk.Label(lower_frame, text="Last used: "+last_used).grid(row=0)
+        # Date
+        if total_time != "":
+            ttk.Label(lower_frame, text="Total Time: "+total_time).grid(row=1)
+        # date.configure(style="TLabel")
+        # date.pack()
     # SESSIONS
     def select_session(self, index):
         # If timer is currently running,
@@ -280,7 +312,7 @@ class TimeTrackerApp:
         self.paused = True
         self.pause_button.config(text="▶ Start Timer")
         self.label.configure(style="Inactive.TLabel")
-        session = self.get_current_session()
+        # session = self.get_current_session()
         save_config(
             self.target_window,
             self.sessions)
@@ -451,9 +483,7 @@ class TimeTrackerApp:
             return
         # Check duplicate names
         for session in self.sessions:
-            if session.get(
-                "name",
-                "").lower() == name.lower():
+            if session.get("name", "").lower() == name.lower():
                 messagebox.showwarning(
                     "Already Exists",
                     "A session with this name already exists.",
@@ -461,7 +491,9 @@ class TimeTrackerApp:
                 return
         session = {
             "name": name,
-            "programs": []
+            "programs": [],
+            "last_used": "",
+            "total_time": ""
         }
         self.sessions.append(session)
         # self.refresh_list()
@@ -674,12 +706,7 @@ class TimeTrackerApp:
         fieldnames = []
         with FileLock(LOCK_PATH):
             if os.path.exists(FILE):
-                with open(
-                    FILE,
-                    "r",
-                    newline="",
-                    encoding="utf-8"
-                ) as f:
+                with open(FILE, "r", newline="", encoding="utf-8") as f:
                     reader = csv.DictReader(f)
                     if reader.fieldnames:
                         fieldnames = list(reader.fieldnames)
@@ -698,42 +725,29 @@ class TimeTrackerApp:
                     break
             # Falls heute noch keine Zeile existiert
             if today_row is None:
-                today_row = {
-                    field: ""
-                    for field in fieldnames
-                }
+                today_row = {field: "" for field in fieldnames}
                 today_row["Date"] = today_str
                 today_row[session_name] = format_seconds(new_seconds)
                 rows.append(today_row)
             # Falls heute bereits existiert
             else:
-                previous_time = today_row.get(
-                    session_name,
-                    ""
-                ).strip()
+                previous_time = today_row.get(session_name, "").strip()
                 previous_seconds = 0
                 if previous_time:
                     try:
                         parts = previous_time.split(":")
                         if len(parts) == 3:
-                            hours, minutes, seconds = map(
-                                int,
-                                parts
-                            )
+                            hours, minutes, seconds = map(int, parts)
                             previous_seconds = (
                                 hours * 3600
                                 + minutes * 60
-                                + seconds
-                            )
-                    except ValueError:
-                        previous_seconds = 0
+                                + seconds)
+                    except ValueError: previous_seconds = 0
                 # Alte + neue Zeit addieren
                 total_seconds = (
                     previous_seconds
-                    + new_seconds
-                )
-                today_row[session_name] = (format_seconds(total_seconds)
-                )
+                    + new_seconds)
+                today_row[session_name] = (format_seconds(total_seconds))
             # Spaltenreihenfolge
             ordered_fields = (
                 ["Date"]
@@ -761,34 +775,33 @@ class TimeTrackerApp:
                 reverse=True
             )
             # CSV speichern
-            with open(
-                FILE,
-                "w",
-                newline="",
-                encoding="utf-8"
-            ) as f:
-                writer = csv.DictWriter(
-                    f,
-                    fieldnames=ordered_fields
-                )
+            with open(FILE, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=ordered_fields)
                 writer.writeheader()
                 writer.writerows(rows)
         # UI zurücksetzen
         saved_time = format_seconds(new_seconds)
+        total_time = get_total_time(session_name)
         messagebox.showinfo(
             "Saved",
             (
                 f"Time saved to {FILE}\n\n"
                 f"Session: {session_name}\n"
                 f"Date: {today_str}\n"
-                f"Added: {saved_time}"
+                f"Added: {saved_time}\n"
+                f"Total: {total_time}"
             )
         )
         self.total_time = 0
         self.label.config(text="0:00:00")
+        # Letztes genutztes Datum speichern
+        session["last_used"] = today_str
+        session["total_time"] = str(total_time)
+
     # CLOSE
     def on_close(self):
         self.pause()
+        save_config(self.target_window, self.sessions)
         if self.total_time > 0 or self.tracking:
             result = messagebox.askyesnocancel(
                 "Close",
